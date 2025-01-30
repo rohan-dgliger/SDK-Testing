@@ -1,52 +1,93 @@
-// my-kyc-sdk.js (Your SDK file)
+// documentInputSDK.js (SDK file)
 
-class DataFetcher {
-  constructor(containerId, onSubmit) {
-    this.container = document.getElementById(containerId); // Get the container element
-    if (!this.container) {
-      throw new Error("Container element not found.");
-    }
-    this.onSubmit = onSubmit; // Callback function for submission
-    this.createForm();
-  }
-
-  createForm() {
-    // ... (All the code to create the form elements remains the same) ...
-
-    // Handle form submission (modified)
-    this.submitBtn.addEventListener("click", () => {
-      const data = {
-        type: this.selectedType,
-        value: this.idInput.value,
-      };
-      this.onSubmit(data); // Call the callback function with the data
-    });
-
-     // Store references to elements as properties of the class
-    this.formContainer = formContainer;  // Make formContainer a class property
-    this.radioGroup = radioGroup;
-    this.aadhaarRadio = aadhaarRadio;
-    this.panRadio = panRadio;
-    this.inputContainer = inputContainer;
-    this.inputLabel = inputLabel;
-    this.idInput = idInput;
-    this.errorMessage = errorMessage;
-    this.submitBtn = submitBtn;
-    this.selectedType = ""; //Initialize selectedType
-
-  }
-
-  destroy() {
-        // Remove the form from the DOM when the widget is no longer needed
-        if (this.formContainer) {
-            this.container.removeChild(this.formContainer);
+export class DocumentInputSDK {
+    constructor(containerId) {
+        this.containerId = containerId || document.body; // Default to body if no ID provided
+        this.container = typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+        if (!this.container) {
+            throw new Error("Container element not found.");
         }
+        this.initialize();
+    }
+
+    initialize() {
+        // Create elements (same as before, but now this.container is used)
+        this.container.innerHTML = ""; // Clear existing content in the container.
+
+        const title = document.createElement('h2');
+        title.textContent = 'Document Input';
+        this.container.appendChild(title);
+
+        const radioGroup = document.createElement('div');
+        radioGroup.className = 'radio-group';
+        // ... (rest of the element creation code - same as before, but use this.container.appendChild)
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .container { /* ... your CSS styles ... */ }
+            /* ... other CSS styles ... */
+        `;
+        document.head.appendChild(style);
+
+        // Store references to elements for easy access later
+        this.aadhaarRadio = document.getElementById('aadhaar');
+        this.panRadio = document.getElementById('pan');
+        this.inputArea = document.getElementById('input-area');
+        this.inputLabel = document.getElementById('input-label');
+        this.docNumberInput = document.getElementById('doc-number');
+        this.errorMessage = document.getElementById('error-message');
+
+    }
+
+
+    toggleInput() {
+        this.errorMessage.textContent = ""; // Clear previous messages
+        this.inputArea.style.display = 'block';
+
+        if (this.aadhaarRadio.checked) {
+            this.inputLabel.textContent = 'Aadhaar Number:';
+            this.inputArea.setAttribute('data-type', 'aadhaar');
+        } else if (this.panRadio.checked) {
+            this.inputLabel.textContent = 'PAN Number:';
+            this.inputArea.setAttribute('data-type', 'pan');
+        }
+    }
+
+    validate() {
+        const docType = document.querySelector('input[name="docType"]:checked')?.value; // Use optional chaining
+        const docNumber = this.docNumberInput.value;
+        this.errorMessage.textContent = "";
+
+        if (!docType) {
+            this.errorMessage.textContent = "Please select document type";
+            return false;
+        }
+
+        if (docType === 'aadhaar') {
+            if (!this.isValidAadhaar(docNumber)) {
+                this.errorMessage.textContent = "Invalid Aadhaar Number";
+                return false;
+            }
+        } else if (docType === 'pan') {
+            if (!this.isValidPAN(docNumber)) {
+                this.errorMessage.textContent = "Invalid PAN Number";
+                return false;
+            }
+        }
+
+        alert("Validation Successful!");
+        return true;
+    }
+
+    isValidAadhaar(aadhaar) {
+        return /^\d{12}$/.test(aadhaar);
+    }
+
+    isValidPAN(pan) {
+        return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan);
     }
 }
 
 
-// Make MyKYCWidget available globally (or export it if using modules)
-window.MyKYCWidget = MyKYCWidget;  // For direct inclusion in HTML
-
-// Or, if you're using a module system (like CommonJS or ES modules):
-// export default MyKYCWidget;
+// Make the SDK available globally (or however you want to export it)
+window.DocumentInputSDK = DocumentInputSDK;
