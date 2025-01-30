@@ -1,54 +1,52 @@
-export class DataFetcher {
-    constructor(containerId) {
-      this.container = document.getElementById(containerId);
-      if (!this.container) {
-        throw new Error('Container element not found');
-      }
-      this.apiUrl = "https://jsonplaceholder.typicode.com/posts";
-      this.dataDisplay = null;
-      this.fetchButton = null;
+// my-kyc-sdk.js (Your SDK file)
+
+class DataFetcher {
+  constructor(containerId, onSubmit) {
+    this.container = document.getElementById(containerId); // Get the container element
+    if (!this.container) {
+      throw new Error("Container element not found.");
     }
-  
-    init() {
-      // Create button
-      this.fetchButton = document.createElement("button");
-      this.fetchButton.textContent = "Fetch Data";
-      this.container.appendChild(this.fetchButton);
-  
-      // Create display container
-      this.dataDisplay = document.createElement("div");
-      this.container.appendChild(this.dataDisplay);
-  
-      // Add event listener
-      this.fetchButton.addEventListener("click", () => this.fetchData());
-    }
-  
-    async fetchData() {
-      this.dataDisplay.innerHTML = "Loading...";
-  
-      try {
-        const response = await fetch(this.apiUrl);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+    this.onSubmit = onSubmit; // Callback function for submission
+    this.createForm();
+  }
+
+  createForm() {
+    // ... (All the code to create the form elements remains the same) ...
+
+    // Handle form submission (modified)
+    this.submitBtn.addEventListener("click", () => {
+      const data = {
+        type: this.selectedType,
+        value: this.idInput.value,
+      };
+      this.onSubmit(data); // Call the callback function with the data
+    });
+
+     // Store references to elements as properties of the class
+    this.formContainer = formContainer;  // Make formContainer a class property
+    this.radioGroup = radioGroup;
+    this.aadhaarRadio = aadhaarRadio;
+    this.panRadio = panRadio;
+    this.inputContainer = inputContainer;
+    this.inputLabel = inputLabel;
+    this.idInput = idInput;
+    this.errorMessage = errorMessage;
+    this.submitBtn = submitBtn;
+    this.selectedType = ""; //Initialize selectedType
+
+  }
+
+  destroy() {
+        // Remove the form from the DOM when the widget is no longer needed
+        if (this.formContainer) {
+            this.container.removeChild(this.formContainer);
         }
-        const data = await response.json();
-  
-        this.dataDisplay.innerHTML = data.slice(0, 5).map(item => `
-          <p><strong>${item.title}</strong>: ${item.body}</p>
-        `).join("");
-  
-      } catch (error) {
-        this.dataDisplay.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
-      }
     }
-  
-    // Optional: Method to change API URL
-    setApiUrl(newUrl) {
-      this.apiUrl = newUrl;
-    }
-  }
-  
-  // Make it available globally when using via script tag
-  if (typeof window !== 'undefined') {
-    window.DataFetcher = DataFetcher;
-  }
+}
+
+
+// Make MyKYCWidget available globally (or export it if using modules)
+window.MyKYCWidget = MyKYCWidget;  // For direct inclusion in HTML
+
+// Or, if you're using a module system (like CommonJS or ES modules):
+// export default MyKYCWidget;
